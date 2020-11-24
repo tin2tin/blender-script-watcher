@@ -210,7 +210,7 @@ class ScriptWatcherLoader:
 class ScriptWatcherPreferences(bpy.types.AddonPreferences):
     bl_idname = __name__
 
-    editor_path = bpy.props.StringProperty(
+    editor_path: bpy.props.StringProperty(
         name='Editor Path',
         description='Path to external editor.',
         subtype='FILE_PATH'
@@ -325,7 +325,7 @@ class WatchScriptOperator(bpy.types.Operator):
 
         # Setup the event timer.
         wm = context.window_manager
-        self._timer = wm.event_timer_add(0.1, window=context.window)
+        self._timer = wm.event_timer_add(time_step=0.1, window=context.window)
         wm.modal_handler_add(self)
 
         context.scene.sw_settings.running = True
@@ -369,7 +369,7 @@ class OpenExternalEditor(bpy.types.Operator):
     bl_label = "Edit Externally"
 
     def execute(self, context):
-        addon_prefs = context.user_preferences.addons[__name__].preferences
+        addon_prefs = context.preferences.addons[__name__].preferences
 
         filepath = bpy.path.abspath(context.scene.sw_settings.filepath)
 
@@ -382,9 +382,10 @@ class ScriptWatcherPanel(bpy.types.Panel):
     """UI for the script watcher."""
     bl_label = "Script Watcher"
     bl_idname = "SCENE_PT_script_watcher"
-    bl_space_type = 'PROPERTIES'
-    bl_region_type = 'WINDOW'
-    bl_context = "scene"
+    bl_space_type = 'TEXT_EDITOR'
+    bl_region_type = 'UI'
+    bl_category = "Dev"
+
 
     def draw(self, context):
         layout = self.layout
@@ -397,7 +398,7 @@ class ScriptWatcherPanel(bpy.types.Panel):
         col.prop(context.scene.sw_settings, 'run_main')
 
         if bpy.app.version < (2, 80, 0):
-            col.operator('wm.sw_watch_start', icon='VISIBLE_IPO_ON')
+            col.operator('wm.sw_watch_start', icon='HIDE_ON')
         else:
             col.operator('wm.sw_watch_start', icon='HIDE_OFF')
 
@@ -418,7 +419,7 @@ class ScriptWatcherSettings(bpy.types.PropertyGroup):
     running = bpy.props.BoolProperty(default=False)
     reload = bpy.props.BoolProperty(default=False)
 
-    filepath = bpy.props.StringProperty(
+    filepath: bpy.props.StringProperty(
         name='Script',
         description='Script file to watch for changes.',
         subtype='FILE_PATH'
